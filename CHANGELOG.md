@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 Each entry includes source references for borrowed ideas/code.
 
+## [0.4.1] - 2026-10-31
+
+### Route prefix unification: `/dsh-pet-memory/` → `/dsh-cbw-memory/`
+
+#### Changed: HTTP route prefix renamed to match plugin package name
+- **Reason**: Plugin extracted from `dsh-pet` to independent `@dsh-cbw/memory` package, but all HTTP route prefixes still used the old `dsh-pet-memory` name. Unified to `dsh-cbw-memory` for consistency.
+- **Change**: All `mroute('/dsh-pet-memory/...')` → `mroute('/dsh-cbw-memory/...')` (~35 routes), data directory `~/.dsh/dsh-pet-memory` → `~/.dsh/dsh-cbw-memory`, backup dir, config path, diag log path, client-side base prefix `B`, and `plugin` source identifier all renamed.
+- **Files**: `lib/index.js` (42 occurrences), `lib/client.js` (1 occurrence: `const B`), `pet/chat/dsh_provider.py` in dsh-pet (1 occurrence: toggle URL)
+- **Migration**: Development stage — no data migration needed. Existing users would need to rename `~/.dsh/dsh-pet-memory` → `~/.dsh/dsh-cbw-memory` manually.
+
 ## [0.4.0] - 2026-10-31
 
 ### P2+P3: Idle review + archive index + security model + LRU increase + archive dedup
