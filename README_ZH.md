@@ -1,0 +1,111 @@
+# @dsh-cbw/memory
+
+<p align="center">
+  <a href="./README.md">English</a> | <a href="./README_ZH.md">中文</a>
+</p>
+
+DSH 长期记忆插件：带半衰期遗忘、情绪权重、按工作区共享。
+
+## 功能
+
+- **半衰期遗忘** — `A = A₀ × 2^(-days / H)`，H 受重要度调节（`H = base × (1 + 2×I)`）。重要记忆忘得慢。
+- **情绪衰减** — 独立情绪半衰期（默认 7 天）；情绪记忆比事实记忆衰减快。
+- **稀有度饱和** — `C = s / (s + K)` 控制命中词稀有度的饱和点。
+- **问句信息量门槛** — 低信息量查询（如"你好"）直接跳过记忆召回。
+- **长期事实常驻层** — `factsMax` 条事实每轮固定注入，不看当前查询，不占 `maxItems` 位置。
+- **每日配额** — 限制模型每天最多记录几条记忆（默认 8）。
+- **按工作区共享** — 记忆在 DSH 工作区内共享，不是按会话隔离。
+- **会话独立** — 每个 agent 挂自己的记忆文件，按会话 ID 索引。
+- **时区自动适配** — 自动认机器时区。
+- **权重自动凑 100%** — 四个打分权重始终合计 100%。
+
+### v0.2.0 升级（P0 + P1）
+
+- **显式/隐式记忆请求检测** — 用户说"不要记住"或"记住"时，插件相应调整行为。[借鉴自 dsh-mnemon `lifecycle.ts`]
+- **记忆去重** — 新记忆与最近条目做 bigram 相似度比较，相似条目合并而非重复记录。[借鉴自 @tr1v3r/dsh-ltm 去重思路]
+- **双重预算 + truncated 标记** — `maxItems` + `maxChars` 双重限制，超限时显示 truncated 标记而非静默截断。[借鉴自 dsh-mnemon `composition.ts:normalizeEvidence`]
+- **`recall` 工具** — 模型可主动召回更多记忆，而非只接收被动注入。[借鉴自 dsh-mnemon routed View 模式]
+- **容量管理 + 自动归档** — 记忆条数超过 `maxMemories`（默认 200）时，低分条目归档到单独文件。[借鉴自 dsh-mnemon `runtime-capacity.ts`]
+- **记忆来源标记** — `remember` 工具接受 `source` 参数（`user_explicit` / `model_observed`）；显式记忆优先级更高。[借鉴自 dsh-mnemon ReadGrant 思路，简化版]
+
+## 打分公式
+
+```
+P = C × (基础权重 + 鲜活度权重 × A + 重要度权重 × I + 情绪权重 × E)
+```
+
+其中：
+- **C（证据量）**：`C = s / (s + K)`，s = 命中词稀有度之和，K = `rarityK`（0.8）
+- **A（鲜活度）**：`A = A₀ × 2^(-days / H)`，H = `baseHalfLifeDays`（30）× (1 + 2×I)
+- **E（情绪）**：`E = emotion × 2^(-days / emotionHalfLifeDays)`，`emotionHalfLifeDays`（7）
+- **I（重要度）**：用户标注的重要度
+
+默认权重：`基础权重=0.55, 鲜活度权重=0.25, 重要度权重=0.15, 情绪权重=0.05`
+
+门槛：`threshold=0.3`（卡 C，不掺鲜活度），`maxItems=6, maxChars=800, dailyQuota=8`
+
+## 安装
+
+```bash
+# 在 DSH 设置 → 插件中添加：
+dsh plugin --profile <profile> add github:Scorpioflz/dsh-cbw-memory
+
+# 或从本地路径：
+dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
+```
+
+> **注意**：`@dsh-cbw/memory` 与原版 `dsh-fish-memory` 都注册 `remember` 工具，**不可装在同一个 DSH profile**。安装前如已有 fish-memory，先卸载：`dsh plugin --profile <profile> remove dsh-fish-memory`。
+
+## 配置
+
+所有设置可通过 DSH 设置页（记忆面板）或编辑 `~/.dsh/dsh-pet-memory-config.json` 配置。
+
+| 参数 | 默认值 | 说明 |
+|---|---|---|
+| `baseHalfLifeDays` | 30 | 鲜活度半衰期基数 |
+| `emotionHalfLifeDays` | 7 | 情绪半衰期 |
+| `baselineWeight` | 0.55 | 基础权重（只要被想起就有） |
+| `activationWeight` | 0.25 | 鲜活度权重 |
+| `importanceWeight` | 0.15 | 重要度权重 |
+| `emotionWeight` | 0.05 | 情绪权重 |
+| `threshold` | 0.3 | 证据门槛（卡 C） |
+| `maxItems` | 6 | 每轮最多注入几条 |
+| `maxChars` | 800 | 每轮注入字数上限 |
+| `dailyQuota` | 8 | 每天最多记几条 |
+| `rarityK` | 0.8 | 稀有度饱和点 |
+| `queryGate` | 0.5 | 问句信息量门槛 |
+| `factsMax` | 2 | 长期事实每轮带几条 |
+| `unknownActivation` | 0.5 | 没写时间的记忆鲜活度 |
+| `maxMemories` | 200 | 自动归档前最大记忆条数（v0.2.0+） |
+
+## 工具
+
+| 工具 | 参数 | 说明 |
+|---|---|---|
+| `remember` | `text`, `importance`, `emotion`, `source`, `replace` | 记录一条记忆 |
+| `recall` | `query`, `limit` | 主动召回匹配查询的记忆（v0.2.0+） |
+
+## 致谢
+
+本插件是 [Yuuyuko-uu/dsh-fish-memory](https://github.com/Yuuyuko-uu/dsh-fish-memory) 的衍生作品，按其 **Yuuyuko-uu 插件许可 1.2**（见 [LICENSE](./LICENSE)）声明。
+
+原作者：Yuuyuko-uu。衍生作品继续使用同一许可。
+
+### 相对上游的改动
+
+- 记忆按工作区共享（上游按会话）
+- `<system-reminder>` 机器来源检索过滤
+- queryGate 小库保护（0.8→0.5，<10 条跳过）
+- 设置页会话→工作区归类
+- 打包目录编码修复
+- 包名改为 `@dsh-cbw/memory`（注册名仍为 `memory`，与上游 remember 工具兼容）
+- v0.2.0：显式/隐式请求检测、记忆去重、双重预算+truncated 标记、recall 工具、容量管理+自动归档、记忆来源标记
+
+### 借鉴思路来源
+
+- [dsh-mnemon](https://github.com/nicepkg/dsh-mnemon) — Composable View 模式、双重预算控制、显式/隐式请求检测、idle review、ReadGrant 安全模型、容量自动归档
+- [@tr1v3r/dsh-ltm](https://www.npmjs.com/package/@tr1v3r/dsh-ltm) — CJK 分词、去重思路
+
+## 许可证
+
+见 [LICENSE](./LICENSE) — Yuuyuko-uu 插件许可 1.2。
