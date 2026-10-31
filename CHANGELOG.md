@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 Each entry includes source references for borrowed ideas/code.
 
+## [0.5.1] - 2026-10-31
+
+### Bug fix: source header swallowing message body
+
+#### Fixed: External source headers (e.g. 【QQ私聊】) no longer swallow following text
+- **Source**: dsh-fish-memory 1.4.7 upstream fix (`44f3db3b1c43`)
+- **Bug**: `清掉注入上下文()` treated all `【xxx】` lines as block headers, setting `跳到空行 = true` — so an external source header like `【QQ私聊】` immediately followed by message body (no blank line) would skip the body too, leaving query empty and preventing recall.
+- **Fix**: Only `【你记得的事】` (self-injected block) triggers `跳到空行`. Other `【xxx】` headers skip just that one line, preserving the body below.
+- **Files**: `lib/index.js` — `清掉注入上下文()` function
+
 ## [0.5.0] - 2026-10-31
 
 ### Category-based half-life differentiation
