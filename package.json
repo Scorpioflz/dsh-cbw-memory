@@ -1,6 +1,6 @@
 {
   "name": "@dsh-cbw/memory",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "DSH long-term memory plugin with half-life decay, emotion weighting, and per-workspace sharing. Derived from Yuuyuko-uu/dsh-fish-memory (Yuuyuko-uu Plugin License 1.2).",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 Each entry includes source references for borrowed ideas/code.
 
+## [0.5.0] - 2026-10-31
+
+### Category-based half-life differentiation
+
+#### Changed: Half-life now varies by memory category
+- **Reason**: `project_context`/`task_state`/`fact`/`user_preference` memories represent long-lived engineering context and user traits — they should persist longer than `conversation`/`general`/`event` memories, but all shared the same `baseHalfLifeDays`.
+- **Change**: Added `CATEGORY_HALF_LIFE_MULT` map and `categoryHalfLifeMult()` helper. Half-life formula becomes `H = baseHalfLifeDays × (1 + 2×I) × categoryMult(category)`. Multipliers: `project_context` ×3, `fact`/`user_preference`/`task_state` ×2, others ×1. `stable_profile` unaffected (returns constant activation before H is computed).
+- **Files**: `lib/index.js` — added constant + helper after `POLICY_SPEC`, modified 3 half-life calculations (`鲜活度()`, `evaluate()`, `remember` reinforce), updated `category` parameter description
+- **Impact**: A `project_context` memory with `baseHalfLifeDays=30` now has effective half-life of 90 days (×3) instead of 30. No config change needed — multipliers are hardcoded. Existing memories with matching categories immediately benefit.
+
 ## [0.4.1] - 2026-10-31
 
 ### Route prefix unification: `/dsh-pet-memory/` → `/dsh-cbw-memory/`

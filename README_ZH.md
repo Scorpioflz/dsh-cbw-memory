@@ -32,7 +32,7 @@ DSH 长期记忆插件：带半衰期遗忘、情绪权重、按工作区共享�
 
 ### v0.3.0 升级（P2）
 
-- **JSONL 存储 + category** — 记忆以 JSONL 存储，带 `category` 字段（`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`），为将来按分类差异化半衰期/检索打基础。
+- **JSONL 存储 + category** — 记忆以 JSONL 存储，带 `category` 字段（`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`）。半衰期按分类差异化：`project_context` ×3、`fact`/`user_preference`/`task_state` ×2、其余 ×1。
 - **增量定时沉淀** — 定时器+增量提取（默认 30 分钟，跳过闲聊，优先工程对话）。默认关。
 
 ### v0.4.0 升级（P3）
@@ -56,7 +56,7 @@ P = C × (基础权重 + 鲜活度权重 × A + 重要度权重 × I + 情绪权
 
 其中：
 - **C（证据量）**：`C = s / (s + K)`，s = 命中词稀有度之和，K = `rarityK`（0.8）
-- **A（鲜活度）**：`A = A₀ × 2^(-days / H)`，H = `baseHalfLifeDays`（30）× (1 + 2×I)
+- **A（鲜活度）**：`A = A₀ × 2^(-days / H)`，H = `baseHalfLifeDays`（30）× (1 + 2×I) × `categoryMult`（project_context: 3, fact/user_preference/task_state: 2, 其余: 1）
 - **E（情绪）**：`E = emotion × 2^(-days / emotionHalfLifeDays)`，`emotionHalfLifeDays`（7）
 - **I（重要度）**：用户标注的重要度
 
@@ -123,6 +123,7 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 - v0.3.0：JSONL 存储+category 字段、增量定时沉淀
 - v0.4.0：安全模型（source 验证）、归档索引、LRU 阈值上调（200→500）、归档去重、CJK bigram 检索
 - v0.4.1：路由前缀统一（`/dsh-pet-memory/` → `/dsh-cbw-memory/`）、插件市场索引
+- v0.5.0：分类半衰期差异化（`project_context` ×3、`fact`/`user_preference`/`task_state` ×2、其余 ×1）
 
 ### 借鉴思路来源
 

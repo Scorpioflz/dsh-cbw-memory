@@ -32,7 +32,7 @@ A DeepSeek Harness (DSH) long-term memory plugin with half-life decay, emotion w
 
 ### v0.3.0 Upgrades (P2)
 
-- **JSONL storage + category** — Memories stored as JSONL with a `category` field (`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`), enabling future per-category decay/retrieval policies.
+- **JSONL storage + category** — Memories stored as JSONL with a `category` field (`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`). Half-life varies by category: `project_context` ×3, `fact`/`user_preference`/`task_state` ×2, others ×1.
 - **Incremental idle review** — Timer-based incremental extraction (30 min default, skips chitchat, prioritizes engineering dialogs). Off by default.
 
 ### v0.4.0 Upgrades (P3)
@@ -56,7 +56,7 @@ P = C × (baselineWeight + activationWeight × A + importanceWeight × I + emoti
 
 Where:
 - **C (evidence)**: `C = s / (s + K)`, s = sum of hit-word rarities, K = `rarityK` (0.8)
-- **A (activation)**: `A = A₀ × 2^(-days / H)`, H = `baseHalfLifeDays` (30) × (1 + 2×I)
+- **A (activation)**: `A = A₀ × 2^(-days / H)`, H = `baseHalfLifeDays` (30) × (1 + 2×I) × `categoryMult` (project_context: 3, fact/user_preference/task_state: 2, else: 1)
 - **E (emotion)**: `E = emotion × 2^(-days / emotionHalfLifeDays)`, `emotionHalfLifeDays` (7)
 - **I (importance)**: User-annotated importance level
 
@@ -123,6 +123,7 @@ Original author: Yuuyuko-uu. The derivative continues under the same license.
 - v0.3.0: JSONL storage + category field, incremental idle review
 - v0.4.0: Security model (source validation), archive index, LRU threshold raised (200→500), archive deduplication, CJK bigram search
 - v0.4.1: Route prefix unified (`/dsh-pet-memory/` → `/dsh-cbw-memory/`), plugin market index
+- v0.5.0: Category-based half-life differentiation (`project_context` ×3, `fact`/`user_preference`/`task_state` ×2, others ×1)
 
 ### Ideas borrowed from
 
