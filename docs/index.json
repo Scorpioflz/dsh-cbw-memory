@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "title": { "en": "DSH CBW Plugins", "zh": "蓝鲸女仆插件" },
+  "plugins": [
+    {
+      "name": "@dsh-cbw/memory",
+      "title": { "en": "Memory", "zh": "记忆" },
+      "description": {
+        "en": "Long-term memory plugin with half-life decay, emotion weighting, CJK-aware bigram search, archive index, and idle review. Derived from dsh-fish-memory.",
+        "zh": "长期记忆插件：半衰期遗忘、情绪权重、CJK bigram 检索、归档索引、增量定时沉淀。基于 dsh-fish-memory 衍生自研。"
+      },
+      "author": "Scorpioflz",
+      "homepage": "https://github.com/Scorpioflz/dsh-cbw-memory",
+      "repository": "https://github.com/Scorpioflz/dsh-cbw-memory",
+      "keywords": ["memory", "recall", "long-term", "cjk", "archive", "half-life"],
+      "versions": [
+        {
+          "version": "0.4.1",
+          "publishTimestamp": 1793444180,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/Scorpioflz/dsh-cbw-memory",
+            "commit": "cd4d5b54e42e4c821c745456df323b2edbb2d383"
+          },
+          "engines": { "dsh": ">=0.2.0" }
+        }
+      ]
+    }
+  ]
+}
