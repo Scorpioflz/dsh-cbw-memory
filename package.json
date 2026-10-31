@@ -3,6 +3,11 @@
   "version": "0.4.1",
   "description": "DSH long-term memory plugin with half-life decay, emotion weighting, and per-workspace sharing. Derived from Yuuyuko-uu/dsh-fish-memory (Yuuyuko-uu Plugin License 1.2).",
   "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Scorpioflz/dsh-cbw-memory.git"
+  },
+  "homepage": "https://github.com/Scorpioflz/dsh-cbw-memory",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
