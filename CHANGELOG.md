@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 Each entry includes source references for borrowed ideas/code.
 
+## [0.4.0] - 2026-10-31
+
+### P2+P3: Idle review + archive index + security model + LRU increase + archive dedup
+
+#### Added: 4.7 Incremental timed sediment (idle review)
+- **Source**: dsh-mnemon `skill-evolution.ts` (original), revised to incremental timed approach
+- **Change**: Timer-based incremental extraction (default every 30 minutes, off by default). Checks for active SSE streams (skips if active), extracts incremental conversation since last review, skips if < 500 chars (0 token), detects idle chat via heuristics (no tool_call + no code blocks + no file paths + < 1000 chars → skip, 0 token), calls model to extract memories from engineering conversations. Extracted memories saved with `source: 'idle_review'`.
+- **Config**: `idleReviewEnabled` (default false), `idleReviewInterval` (30 min), `idleReviewMinChars` (500), `idleReviewIdleChatThreshold` (1000)
+- **Files**: `lib/index.js` — added config to `DEFAULT_POLICY`/`POLICY_SPEC`, `idleReview()` function in `apply()`, timer via `ctx.interval(60000)`
+
+#### Added: 4.11 Security model enhancement for `remember` tool
+- **Source**: dsh-mnemon ReadGrant (simplified), enhancement of P1 source marking
+- **Change**: `source` parameter now validates against three allowed values: `user_explicit`, `model_observed`, `idle_review`. Invalid values default to `model_observed`. `idle_review` source has lowest priority.
+- **Files**: `lib/index.js` — modified `source` parameter validation in `makeRememberTool`
+
+#### Added: 4.12 Archive index (Redis/SQL model)
+- **Source**: User-proposed, inspired by Redis/SQL layered architecture
+- **Change**: When memories are archived, an `archive_index` record is left in main memory pointing to the archive file + content summary. `recall()` checks `archive_index` records and loads actual memories from archive files on query match (bigram similarity > threshold). Archive is no longer dead storage — it remains queryable.
+- **Files**: `lib/index.js` — modified `archiveOldMemories()` to write index records, modified `recall()` to load from archive on match
+
+#### Changed: 4.13 LRU threshold increase
+- **Change**: `maxMemories` default increased from 200 to 500. `POLICY_SPEC` max increased from 1000 to 2000. With archive index (4.12), larger main memory doesn't affect query efficiency.
+- **Files**: `lib/index.js` — `DEFAULT_POLICY.maxMemories` 200→500, `POLICY_SPEC` max 1000→2000
+
+#### Added: 4.14 Archive deduplication (anti-cycling)
+- **Source**: User-proposed, extension of P0 dedup logic to archive layer
+- **Change**: Before adding memories to archive file, checks existing archive content for bigram similarity > 0.8. Similar memories are skipped (only removed from main memory, not re-archived). Prevents record→archive→re-record→re-archive cycles.
+- **Files**: `lib/index.js` — modified `archiveOldMemories()` to check existing archive before appending
+
+#### Confirmed already implemented: 4.9 Management panel + 4.10 CJK bigram
+- **4.9**: Memory management panel (list/search/edit/delete/batch/restore) already exists in `lib/client.js` with backend API in `lib/index.js` (`/list`, `/edit`, `/delete` routes)
+- **4.10**: CJK-aware tokenization already exists via `分词()` (word-table segmentation) with `老分词()` bigram fallback in `lib/index.js`
+
 ## [0.3.0] - 2026-10-31
 
 ### P2: JSONL storage + category field
