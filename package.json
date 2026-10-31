@@ -19,6 +19,7 @@
   "files": [
     "lib",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
     "cordis.patch.yml"
   ],
   "dsh": {

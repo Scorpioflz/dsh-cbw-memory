@@ -6,6 +6,8 @@
 
 A DeepSeek Harness (DSH) long-term memory plugin with half-life decay, emotion weighting, and per-workspace sharing.
 
+> **Derivative work** of [Yuuyuko-uu/dsh-fish-memory](https://github.com/Yuuyuko-uu/dsh-fish-memory) — original author **Yuuyuko-uu**, used under the **Yuuyuko-uu Plugin License 1.2**. See [§ Attribution](#attribution) for the full list of changes relative to upstream.
+
 ## Features
 
 - **Half-life forgetting** — `A = A₀ × 2^(-days / H)`, where H is modulated by importance (`H = base × (1 + 2×I)`). Important memories decay slower.
@@ -27,6 +29,24 @@ A DeepSeek Harness (DSH) long-term memory plugin with half-life decay, emotion w
 - **`recall` tool** — Models can actively recall more memories on demand, rather than only receiving passive injection. [Borrowed from dsh-mnemon routed View mode]
 - **Capacity management + auto-archive** — When memory count exceeds `maxMemories` (default 200), low-score entries are archived to a separate file. [Borrowed from dsh-mnemon `runtime-capacity.ts`]
 - **Memory source tagging** — `remember` tool accepts a `source` parameter (`user_explicit` / `model_observed`); distinguishes user-requested memories from model-observed ones. [Borrowed from dsh-mnemon ReadGrant concept, simplified]
+
+### v0.3.0 Upgrades (P2)
+
+- **JSONL storage + category** — Memories stored as JSONL with a `category` field (`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`), enabling future per-category decay/retrieval policies.
+- **Incremental idle review** — Timer-based incremental extraction (30 min default, skips chitchat, prioritizes engineering dialogs). Off by default.
+
+### v0.4.0 Upgrades (P3)
+
+- **Security model** — `source` parameter validated against allowed values (`user_explicit`/`model_observed`/`idle_review`); no forged IDs.
+- **Archive index** — `archive_index` records point to archive files; `recall` loads on demand (Redis/SQL pattern).
+- **LRU threshold raised** — `maxMemories` 200→500.
+- **Archive deduplication** — Bigram similarity check before archiving, prevents cyclic re-archiving.
+- **CJK bigram search** — CJK-aware tokenized search (already present, formally documented).
+
+### v0.4.1
+
+- **Route prefix unified** — All HTTP routes `/dsh-pet-memory/` → `/dsh-cbw-memory/`, consistent with package name.
+- **Plugin market index** — Published to DSH plugin market via GitHub Pages (`docs/index.json`).
 
 ## Scoring Formula
 
@@ -58,7 +78,7 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 
 ## Configuration
 
-All settings are configurable via the DSH settings page (B站 memory panel) or by editing `~/.dsh/dsh-pet-memory-config.json`.
+All settings are configurable via the DSH settings page (memory panel) or by editing `~/.dsh/dsh-cbw-memory-config.json`.
 
 | Parameter | Default | Description |
 |---|---|---|
@@ -76,7 +96,7 @@ All settings are configurable via the DSH settings page (B站 memory panel) or b
 | `queryGate` | 0.5 | Query information threshold |
 | `factsMax` | 2 | Long-term facts injected every turn |
 | `unknownActivation` | 0.5 | Activation for memories without timestamps |
-| `maxMemories` | 200 | Max memories before auto-archive (v0.2.0+) |
+| `maxMemories` | 500 | Max memories before auto-archive (v0.4.0+: raised from 200) |
 
 ## Tools
 
@@ -100,10 +120,13 @@ Original author: Yuuyuko-uu. The derivative continues under the same license.
 - Packed-dir U+FFFD encoding fix
 - Package renamed to `@dsh-cbw/memory` (register name stays `memory` for `remember` tool compatibility)
 - v0.2.0: Explicit/implicit request detection, memory deduplication, dual budget + truncated marker, `recall` tool, capacity management + auto-archive, memory source tagging
+- v0.3.0: JSONL storage + category field, incremental idle review
+- v0.4.0: Security model (source validation), archive index, LRU threshold raised (200→500), archive deduplication, CJK bigram search
+- v0.4.1: Route prefix unified (`/dsh-pet-memory/` → `/dsh-cbw-memory/`), plugin market index
 
 ### Ideas borrowed from
 
-- [dsh-mnemon](https://github.com/nicepkg/dsh-mnemon) — Composable View mode, dual budget control, explicit/implicit request detection, idle review, ReadGrant security model, capacity auto-archive
+- [dsh-mnemon](https://github.com/omdsh-dev/dsh-mnemon) — Composable View mode, dual budget control, explicit/implicit request detection, idle review, ReadGrant security model, capacity auto-archive
 - [@tr1v3r/dsh-ltm](https://www.npmjs.com/package/@tr1v3r/dsh-ltm) — CJK-aware tokenized search, deduplication concept
 
 ## License

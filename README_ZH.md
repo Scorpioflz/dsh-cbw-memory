@@ -6,6 +6,8 @@
 
 DSH 长期记忆插件：带半衰期遗忘、情绪权重、按工作区共享。
 
+> **衍生作品**，派生自 [Yuuyuko-uu/dsh-fish-memory](https://github.com/Yuuyuko-uu/dsh-fish-memory) —— 原作者 **Yuuyuko-uu**，按 **Yuuyuko-uu 插件许可 1.2** 授权。相对上游的改动详见[§ 致谢](#致谢)。
+
 ## 功能
 
 - **半衰期遗忘** — `A = A₀ × 2^(-days / H)`，H 受重要度调节（`H = base × (1 + 2×I)`）。重要记忆忘得慢。
@@ -27,6 +29,24 @@ DSH 长期记忆插件：带半衰期遗忘、情绪权重、按工作区共享�
 - **`recall` 工具** — 模型可主动召回更多记忆，而非只接收被动注入。[借鉴自 dsh-mnemon routed View 模式]
 - **容量管理 + 自动归档** — 记忆条数超过 `maxMemories`（默认 200）时，低分条目归档到单独文件。[借鉴自 dsh-mnemon `runtime-capacity.ts`]
 - **记忆来源标记** — `remember` 工具接受 `source` 参数（`user_explicit` / `model_observed`）；区分用户明确要求记住的和模型自己觉得该记的。[借鉴自 dsh-mnemon ReadGrant 思路，简化版]
+
+### v0.3.0 升级（P2）
+
+- **JSONL 存储 + category** — 记忆以 JSONL 存储，带 `category` 字段（`user_preference`/`fact`/`project_context`/`task_state`/`conversation`/`general`），为将来按分类差异化半衰期/检索打基础。
+- **增量定时沉淀** — 定时器+增量提取（默认 30 分钟，跳过闲聊，优先工程对话）。默认关。
+
+### v0.4.0 升级（P3）
+
+- **安全模型增强** — `source` 参数验证（`user_explicit`/`model_observed`/`idle_review`）；防伪造 ID。
+- **归档索引** — `archive_index` 记录指向归档文件，recall 命中时按需加载（Redis/SQL 模型）。
+- **LRU 阈值上调** — `maxMemories` 200→500。
+- **归档去重** — 归档前 bigram 相似度检查，防循环归档。
+- **CJK bigram 检索** — CJK 感知分词检索（已有，正式文档化）。
+
+### v0.4.1
+
+- **路由前缀统一** — 所有 HTTP 路由 `/dsh-pet-memory/` → `/dsh-cbw-memory/`，与包名一致。
+- **插件市场索引** — 通过 GitHub Pages 发布到 DSH 插件市场（`docs/index.json`）。
 
 ## 打分公式
 
@@ -58,7 +78,7 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 
 ## 配置
 
-所有设置可通过 DSH 设置页（记忆面板）或编辑 `~/.dsh/dsh-pet-memory-config.json` 配置。
+所有设置可通过 DSH 设置页（记忆面板）或编辑 `~/.dsh/dsh-cbw-memory-config.json` 配置。
 
 | 参数 | 默认值 | 说明 |
 |---|---|---|
@@ -76,7 +96,7 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 | `queryGate` | 0.5 | 问句信息量门槛 |
 | `factsMax` | 2 | 长期事实每轮带几条 |
 | `unknownActivation` | 0.5 | 没写时间的记忆鲜活度 |
-| `maxMemories` | 200 | 自动归档前最大记忆条数（v0.2.0+） |
+| `maxMemories` | 500 | 自动归档前最大记忆条数（v0.4.0+：从 200 上调） |
 
 ## 工具
 
@@ -100,10 +120,13 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 - 打包目录编码修复
 - 包名改为 `@dsh-cbw/memory`（注册名仍为 `memory`，与上游 remember 工具兼容）
 - v0.2.0：显式/隐式请求检测、记忆去重、双重预算+truncated 标记、recall 工具、容量管理+自动归档、记忆来源标记
+- v0.3.0：JSONL 存储+category 字段、增量定时沉淀
+- v0.4.0：安全模型（source 验证）、归档索引、LRU 阈值上调（200→500）、归档去重、CJK bigram 检索
+- v0.4.1：路由前缀统一（`/dsh-pet-memory/` → `/dsh-cbw-memory/`）、插件市场索引
 
 ### 借鉴思路来源
 
-- [dsh-mnemon](https://github.com/nicepkg/dsh-mnemon) — Composable View 模式、双重预算控制、显式/隐式请求检测、idle review、ReadGrant 安全模型、容量自动归档
+- [dsh-mnemon](https://github.com/omdsh-dev/dsh-mnemon) — Composable View 模式、双重预算控制、显式/隐式请求检测、idle review、ReadGrant 安全模型、容量自动归档
 - [@tr1v3r/dsh-ltm](https://www.npmjs.com/package/@tr1v3r/dsh-ltm) — CJK 分词、去重思路
 
 ## 许可证

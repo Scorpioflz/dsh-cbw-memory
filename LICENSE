@@ -51,16 +51,18 @@ Yuuyuko-uu 插件许可 1.2
 
 ---
 
-本文件是 `@dsh-pet/memory`（桌宠记忆插件）随附的许可证原文，逐字复制自
+本文件是 `@dsh-cbw/memory`（DSH 记忆插件）随附的许可证原文，逐字复制自
 上游 [Yuuyuko-uu/dsh-fish-memory](https://github.com/Yuuyuko-uu/dsh-fish-memory)
-的 LICENSE。`@dsh-pet/memory` 派生自 dsh-fish-memory，按许可 5b 要求声明：
+的 LICENSE。`@dsh-cbw/memory` 派生自 dsh-fish-memory，按许可 5b 要求声明：
 
 - 原仓库地址：https://github.com/Yuuyuko-uu/dsh-fish-memory
 - 原作者：Yuuyuko-uu
-- 本衍生作品（`@dsh-pet/memory`）相对上游的改动：
+- 本衍生作品（`@dsh-cbw/memory`）相对上游的改动：
   - 记忆按工作区共享（同一工作区多会话共用一份记忆），上游默认按会话
   - `<system-reminder>` 等机器来源文本的检索过滤
   - queryGate 小库保护门槛调整（0.8→0.5，记忆 <10 条时跳过打分归一化）
   - 设置页「会话→工作区」归类入口
   - 打包目录编码损坏修复
-  - 包名改为 `@dsh-pet/memory`，注册名仍为 `memory`（与上游 remember 工具兼容）
+  - 包名改为 `@dsh-cbw/memory`，注册名仍为 `memory`（与上游 remember 工具兼容）
+  - v0.2.0-v0.4.1：显式/隐式请求检测、记忆去重、recall 工具、容量管理+自动归档、
+    JSONL+category 存储、增量定时沉淀、归档索引、安全模型增强、CJK bigram 检索、LRU 上调
