@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 Each entry includes source references for borrowed ideas/code.
 
+## [0.3.0] - 2026-10-31
+
+### P2: JSONL storage + category field
+
+#### Changed: JSONL storage format
+- **Source**: [@restregular/dsh-memory](https://www.npmjs.com/package/@restregular/dsh-memory) — JSONL storage concept
+- **Change**: Memory files changed from JSON (single object) to JSONL (one record per line). Each line is a JSON object with a `type` field: `meta` (version/purgeEpoch/policy), `memory`, `trace`, or `deleted`. `loadStore`/`saveStore` interfaces unchanged — only the file format changed. Automatic migration from old `.json` to new `.jsonl` on first load (old file deleted after successful migration).
+- **Why**: JSONL enables future append-only writes (O(1) vs O(n) read-modify-write), and each memory is independently readable by external tools. Migration cost is near-zero since current memory is empty (development stage).
+- **Files**: `lib/index.js` — added `jsonlSerialize()`/`jsonlParse()` functions, `storePathLegacy()` for migration. Modified `storePath()` (`.json`→`.jsonl`), `loadStore()` (migration + JSONL parse), `saveStore()` (JSONL serialize), `archiveOldMemories()` (`.jsonl` archive), `blank()` (version 2→3). Updated 4 `readdirSync(STORE_DIR)` loops to match both `.jsonl` and `.json`.
+
+#### Added: `category` parameter in `remember` tool
+- **Source**: General-assistant positioning requirement (desktop pet evolving toward universal DSH front-end)
+- **Change**: `remember` tool now accepts an optional `category` parameter. Reserved values: `user_preference`, `fact`, `project_context`, `task_state`, `conversation`, `general`. Default behavior unchanged (`stable_profile` for importance≥1, `event` otherwise) — new categories only apply when explicitly specified. No classification logic implemented yet; this lays the groundwork for future per-category half-life and retrieval.
+- **Files**: `lib/index.js` — added `category` parameter to `remember` tool definition, modified memory object creation.
+
+#### Fixed: cordis.patch.yml and client.js name mismatch
+- **Change**: `cordis.patch.yml` `name` and `client.js` `id` updated from `@dsh-pet/memory` to `@dsh-cbw/memory` to match `package.json`. Without this fix, DSH would silently skip the plugin (cordis.patch.yml) or fail to activate it (client.js).
+
 ## [0.2.0] - 2026-10-31
 
 ### Project Independence
