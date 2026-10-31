@@ -26,7 +26,7 @@ DSH 长期记忆插件：带半衰期遗忘、情绪权重、按工作区共享�
 - **双重预算 + truncated 标记** — `maxItems` + `maxChars` 双重限制，超限时显示 truncated 标记而非静默截断。[借鉴自 dsh-mnemon `composition.ts:normalizeEvidence`]
 - **`recall` 工具** — 模型可主动召回更多记忆，而非只接收被动注入。[借鉴自 dsh-mnemon routed View 模式]
 - **容量管理 + 自动归档** — 记忆条数超过 `maxMemories`（默认 200）时，低分条目归档到单独文件。[借鉴自 dsh-mnemon `runtime-capacity.ts`]
-- **记忆来源标记** — `remember` 工具接受 `source` 参数（`user_explicit` / `model_observed`）；显式记忆优先级更高。[借鉴自 dsh-mnemon ReadGrant 思路，简化版]
+- **记忆来源标记** — `remember` 工具接受 `source` 参数（`user_explicit` / `model_observed`）；区分用户明确要求记住的和模型自己觉得该记的。[借鉴自 dsh-mnemon ReadGrant 思路，简化版]
 
 ## 打分公式
 
@@ -82,7 +82,7 @@ dsh plugin --profile <profile> add /path/to/dsh-cbw-memory
 
 | 工具 | 参数 | 说明 |
 |---|---|---|
-| `remember` | `text`, `importance`, `emotion`, `source`, `replace` | 记录一条记忆 |
+| `remember` | `text`, `importance`, `tags`, `取代`, `事实键`, `source` | 记录一条记忆 |
 | `recall` | `query`, `limit` | 主动召回匹配查询的记忆（v0.2.0+） |
 
 ## 致谢

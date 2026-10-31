@@ -26,7 +26,7 @@ A DeepSeek Harness (DSH) long-term memory plugin with half-life decay, emotion w
 - **Dual budget + truncated marker** — `maxItems` + `maxChars` dual limit; when exceeded, a truncated marker is shown instead of silently cutting off. [Borrowed from dsh-mnemon `composition.ts:normalizeEvidence`]
 - **`recall` tool** — Models can actively recall more memories on demand, rather than only receiving passive injection. [Borrowed from dsh-mnemon routed View mode]
 - **Capacity management + auto-archive** — When memory count exceeds `maxMemories` (default 200), low-score entries are archived to a separate file. [Borrowed from dsh-mnemon `runtime-capacity.ts`]
-- **Memory source tagging** — `remember` tool accepts a `source` parameter (`user_explicit` / `model_observed`); explicit memories get higher priority. [Borrowed from dsh-mnemon ReadGrant concept, simplified]
+- **Memory source tagging** — `remember` tool accepts a `source` parameter (`user_explicit` / `model_observed`); distinguishes user-requested memories from model-observed ones. [Borrowed from dsh-mnemon ReadGrant concept, simplified]
 
 ## Scoring Formula
 
@@ -82,7 +82,7 @@ All settings are configurable via the DSH settings page (B站 memory panel) or b
 
 | Tool | Parameters | Description |
 |---|---|---|
-| `remember` | `text`, `importance`, `emotion`, `source`, `replace` | Record a memory |
+| `remember` | `text`, `importance`, `tags`, `取代`, `事实键`, `source` | Record a memory |
 | `recall` | `query`, `limit` | Actively recall memories matching a query (v0.2.0+) |
 
 ## Attribution
